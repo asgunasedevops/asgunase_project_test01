@@ -1,0 +1,40 @@
+---
+- name: Create ansible user and enable passwordless sudo and SSH
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create ansible user
+      user:
+        name: ansible
+        shell: /bin/bash
+        state: present
+        createhome: yes
+
+    - name: Allow ansible user to have passwordless sudo
+      copy:
+        dest: /etc/sudoers.d/ansible
+        content: "ansible ALL=(ALL) NOPASSWD:ALL\n"
+        mode: '0440'
+
+    - name: Create .ssh directory for ansible user
+      file:
+        path: /home/ansible/.ssh
+        state: directory
+        owner: ansible
+        group: ansible
+        mode: '0700'
+
+    - name: Copy SSH public key for ansible user
+      copy:
+        src: /path/to/local/ansible.pub
+        dest: /home/ansible/.ssh/authorized_keys
+        owner: ansible
+        group: ansible
+        mode: '0600'
+
+    - name: Ensure correct permissions on /home/ansible/.ssh/authorized_keys
+      file:
+        path: /home/ansible/.ssh/authorized_keys
+        owner: ansible
+        group: ansible
+        mode: '0600'
