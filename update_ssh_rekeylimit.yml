@@ -1,0 +1,17 @@
+---
+- name: Update SSH configuration for RekeyLimit
+  hosts: stbt3em7aioa01
+  become: yes
+  tasks:
+    - name: Ensure RekeyLimit is set to 60 minutes
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^RekeyLimit'
+        line: 'RekeyLimit default 60m'
+        insertafter: '^#RekeyLimit default none'
+        state: present
+
+    - name: Restart SSH service to apply changes
+      service:
+        name: sshd
+        state: restarted
