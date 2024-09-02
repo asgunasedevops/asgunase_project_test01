@@ -1,0 +1,24 @@
+---
+- name: Update SSL ciphers in Nginx configuration files
+  hosts: your_target_host
+  become: yes
+  tasks:
+    - name: Comment out old SSL ciphers and add new ciphers in nginx config files
+      replace:
+        path: "/etc/nginx/conf.d/{{ item }}"
+        regexp: '^(\s*ssl_ciphers\s+.*)$'
+        replace: '# \1\nssl_ciphers \'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256\';'
+      with_items:
+        - em7_sladmin.conf
+        - em7webconfig.conf
+        - em7ngx_web_ui.conf
+        - em7ngx_em7proxy_web_ui.conf
+        - em7ngx_model_mc_sp.conf
+      notify:
+        - Reload Nginx
+
+  handlers:
+    - name: Reload Nginx
+      service:
+        name: nginx
+        state: reloaded
