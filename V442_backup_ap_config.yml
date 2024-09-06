@@ -1,0 +1,35 @@
+---
+- name: Backup critical AP config files
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create backup directory with hostname
+      shell: |
+        mkdir -p /home/em7release/upgrade_backup/`hostname`
+      args:
+        executable: /bin/bash
+
+    - name: Copy critical config files to backup directory
+      copy:
+        src: "{{ item }}"
+        dest: "/home/em7release/upgrade_backup/{{ ansible_hostname }}/"
+        remote_src: yes
+      with_items:
+        - /etc/silo.conf
+        - /etc/siteconfig/mysql.siteconfig
+        - /etc/siteconfig/siloconf.siteconfig
+        - /etc/php.ini
+
+    - name: Recursively copy the nginx directory to the backup directory
+      copy:
+        src: /etc/nginx
+        dest: "/home/em7release/upgrade_backup/{{ ansible_hostname }}/nginx"
+        remote_src: yes
+        mode: preserve
+
+    - name: Verify backup contents
+      shell: ls /home/em7release/upgrade_backup/`hostname`
+      register: backup_verification
+
+    - debug:
+        var: backup_verification.stdout_lines
