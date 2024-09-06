@@ -14,12 +14,14 @@
         src: /etc/rsyslog.conf
         dest: /home/em7release/upgrade_backup/rsyslog_bkp/rsyslog.conf
         remote_src: yes
+      ignore_errors: yes
 
     - name: Copy cmsp_em7.conf to the backup directory
       copy:
         src: /etc/rsyslog.d/cmsp_em7.conf
         dest: /home/em7release/upgrade_backup/rsyslog_bkp/cmsp_em7.conf
         remote_src: yes
+      ignore_errors: yes
 
     - name: Verify backup files
       shell: ls /home/em7release/upgrade_backup/rsyslog_bkp
