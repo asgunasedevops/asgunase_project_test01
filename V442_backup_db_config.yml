@@ -1,0 +1,56 @@
+---
+- name: Backup critical DB config files
+  hosts: all
+  become: yes
+  tasks:
+    - name: Create backup directory with hostname
+      shell: |
+        mkdir -p /home/em7release/upgrade_backup/`hostname`
+      args:
+        executable: /bin/bash
+
+    - name: Copy critical config files to the backup folder
+      copy:
+        src: "{{ item }}"
+        dest: "/home/em7release/upgrade_backup/{{ ansible_hostname }}/"
+        remote_src: yes
+      with_items:
+        - /etc/silo.conf
+        - /etc/my.cnf.d/silo_mysql.cnf
+        - /etc/corosync/corosync.conf
+        - /etc/drbd.d/r0.res
+        - /etc/drbd-proxy.license
+        - /opt/em7/nextui/nextui.env
+        - /opt/em7/nextui/nextui.conf
+        - /etc/backup.conf
+        - /etc/hosts
+        - /etc/resolv.conf
+        - /etc/siteconfig/mysql.siteconfig
+        - /etc/firewalld-rich-rules.siteconfig
+        - /etc/php.ini
+
+    - name: Copy nginx directory to the backup folder
+      copy:
+        src: /etc/nginx
+        dest: "/home/em7release/upgrade_backup/{{ ansible_hostname }}/nginx"
+        remote_src: yes
+        mode: preserve
+
+    - name: Backup silossl.key file
+      copy:
+        src: /etc/nginx/silossl.key
+        dest: /etc/nginx/silossl.key_backup
+        remote_src: yes
+
+    - name: Backup silossl.pem file
+      copy:
+        src: /etc/nginx/silossl.pem
+        dest: /etc/nginx/silossl.pem_backup
+        remote_src: yes
+
+    - name: Verify backup files
+      shell: ls /home/em7release/upgrade_backup/`hostname`
+      register: backup_verification
+
+    - debug:
+        var: backup_verification.stdout_lines
