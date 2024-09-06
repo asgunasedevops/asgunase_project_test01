@@ -20,6 +20,7 @@
         - /etc/firewalld-rich-rules.siteconfig
         - /etc/siteconfig/mysql.siteconfig
         - /etc/my.cnf.d/silo_mysql.cnf
+      ignore_errors: yes
 
     - name: Recursively copy nginx directory to the backup directory
       copy:
@@ -27,6 +28,7 @@
         dest: "/home/em7release/upgrade_backup/{{ ansible_hostname }}/nginx"
         remote_src: yes
         mode: preserve
+      ignore_errors: yes
 
     - name: Verify backup files
       shell: ls /home/em7release/upgrade_backup/`hostname`
