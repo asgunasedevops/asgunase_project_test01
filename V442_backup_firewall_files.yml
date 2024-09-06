@@ -19,6 +19,7 @@
         - /etc/sysconfig/ip6tables
         - /etc/siteconfig/iptables-phonehome
         - /opt/em7/share/config/iptables.d/
+      ignore_errors: yes
 
     - name: Verify backup files
       shell: ls /home/em7release/upgrade_backup/firewall_bkp
