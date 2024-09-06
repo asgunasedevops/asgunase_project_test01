@@ -19,6 +19,7 @@
         - /etc/siteconfig/mysql.siteconfig
         - /etc/siteconfig/siloconf.siteconfig
         - /etc/php.ini
+      ignore_errors: yes
 
     - name: Recursively copy the nginx directory to the backup directory
       copy:
@@ -26,6 +27,7 @@
         dest: "/home/em7release/upgrade_backup/{{ ansible_hostname }}/nginx"
         remote_src: yes
         mode: preserve
+      ignore_errors: yes
 
     - name: Verify backup contents
       shell: ls /home/em7release/upgrade_backup/`hostname`
