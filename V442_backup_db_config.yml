@@ -28,6 +28,7 @@
         - /etc/siteconfig/mysql.siteconfig
         - /etc/firewalld-rich-rules.siteconfig
         - /etc/php.ini
+      ignore_errors: yes
 
     - name: Copy nginx directory to the backup folder
       copy:
@@ -35,18 +36,21 @@
         dest: "/home/em7release/upgrade_backup/{{ ansible_hostname }}/nginx"
         remote_src: yes
         mode: preserve
+      ignore_errors: yes
 
     - name: Backup silossl.key file
       copy:
         src: /etc/nginx/silossl.key
         dest: /etc/nginx/silossl.key_backup
         remote_src: yes
+      ignore_errors: yes
 
     - name: Backup silossl.pem file
       copy:
         src: /etc/nginx/silossl.pem
         dest: /etc/nginx/silossl.pem_backup
         remote_src: yes
+      ignore_errors: yes
 
     - name: Verify backup files
       shell: ls /home/em7release/upgrade_backup/`hostname`
