@@ -1,0 +1,28 @@
+---
+- name: Backup firewall configuration files from AIO, HA, and DR DB systems
+  hosts: all  # Target your AIO, HA, and DR DB hosts in the inventory
+  become: yes
+  tasks:
+    - name: Create backup directory for firewall configuration
+      file:
+        path: /home/em7release/upgrade_backup/firewall_bkp
+        state: directory
+        mode: '0755'
+
+    - name: Copy firewall-related config files to the backup directory
+      copy:
+        src: "{{ item }}"
+        dest: "/home/em7release/upgrade_backup/firewall_bkp/"
+        remote_src: yes
+      with_items:
+        - /etc/sysconfig/iptables
+        - /etc/sysconfig/ip6tables
+        - /etc/siteconfig/iptables-phonehome
+        - /opt/em7/share/config/iptables.d/
+
+    - name: Verify backup files
+      shell: ls /home/em7release/upgrade_backup/firewall_bkp
+      register: backup_verification
+
+    - debug:
+        var: backup_verification.stdout_lines
