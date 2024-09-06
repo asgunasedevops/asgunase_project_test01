@@ -1,0 +1,29 @@
+---
+- name: Backup rsyslog configuration files from AIO, HA, and DR DB systems
+  hosts: all  # Replace with your inventory group containing AIO, HA, and DR DB systems
+  become: yes
+  tasks:
+    - name: Create backup directory for rsyslog configuration
+      file:
+        path: /home/em7release/upgrade_backup/rsyslog_bkp
+        state: directory
+        mode: '0755'
+
+    - name: Copy rsyslog.conf to the backup directory
+      copy:
+        src: /etc/rsyslog.conf
+        dest: /home/em7release/upgrade_backup/rsyslog_bkp/rsyslog.conf
+        remote_src: yes
+
+    - name: Copy cmsp_em7.conf to the backup directory
+      copy:
+        src: /etc/rsyslog.d/cmsp_em7.conf
+        dest: /home/em7release/upgrade_backup/rsyslog_bkp/cmsp_em7.conf
+        remote_src: yes
+
+    - name: Verify backup files
+      shell: ls /home/em7release/upgrade_backup/rsyslog_bkp
+      register: backup_verification
+
+    - debug:
+        var: backup_verification.stdout_lines
