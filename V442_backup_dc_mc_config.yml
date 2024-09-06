@@ -1,0 +1,36 @@
+---
+- name: Backup critical DC and MC config files
+  hosts: all  # Specify the hosts in your inventory
+  become: yes
+  tasks:
+    - name: Create backup directory with hostname
+      shell: |
+        mkdir -p /home/em7release/upgrade_backup/`hostname`
+      args:
+        executable: /bin/bash
+
+    - name: Copy critical config files to the backup directory
+      copy:
+        src: "{{ item }}"
+        dest: "/home/em7release/upgrade_backup/{{ ansible_hostname }}/"
+        remote_src: yes
+      with_items:
+        - /etc/silo.conf
+        - /etc/siteconfig/siloconf.siteconfig
+        - /etc/firewalld-rich-rules.siteconfig
+        - /etc/siteconfig/mysql.siteconfig
+        - /etc/my.cnf.d/silo_mysql.cnf
+
+    - name: Recursively copy nginx directory to the backup directory
+      copy:
+        src: /etc/nginx
+        dest: "/home/em7release/upgrade_backup/{{ ansible_hostname }}/nginx"
+        remote_src: yes
+        mode: preserve
+
+    - name: Verify backup files
+      shell: ls /home/em7release/upgrade_backup/`hostname`
+      register: backup_verification
+
+    - debug:
+        var: backup_verification.stdout_lines
