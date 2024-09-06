@@ -1,22 +1,31 @@
 ---
 - name: Move previous backups to a new folder during SL1 11.2.2 upgrade
-  hosts: localhost
+  hosts: all
   become: yes
   tasks:
     - name: Create backup folder for 11.2.2
       file:
         path: /home/em7release/backup_11_2_2
         state: directory
+        owner: em7release
+        group: em7release
         mode: '0755'
+      ignore_errors: yes
 
     - name: Move backups from upgrade_backup to backup_11_2_2
-      command: mv /home/em7release/upgrade_backup/* /home/em7release/backup_11_2_2
-      args:
-        removes: /home/em7release/upgrade_backup/*
-      
+      command: mv -f /home/em7release/upgrade_backup /home/em7release/backup_11_2_2
+      ignore_errors: yes
+
     - name: Verify files are moved successfully
       shell: ls /home/em7release/backup_11_2_2
       register: backup_files
+
+    - name: Recreate the upgrade_backup directory
+      file:
+        path: /home/em7release/upgrade_backup
+        state: directory
+        owner: em7release
+        group: em7release
 
     - debug:
         var: backup_files.stdout_lines
