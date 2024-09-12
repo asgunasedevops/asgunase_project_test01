@@ -1,18 +1,18 @@
 ---
-- name: Remove specific lines from nginx config files
+- name: Remove commented ssl lines and reload Nginx
   hosts: all
   become: yes
   tasks:
-    - name: Remove lines starting with '#    ssl_protocols', '#    ssl_ciphers', and '#    ssl_prefer_server_ciphers'
+    - name: Remove commented ssl lines from Nginx config files
       lineinfile:
         path: "{{ item }}"
+        regexp: '^\s*#\s*(ssl_protocols|ssl_ciphers|ssl_prefer_server_ciphers)'
         state: absent
-        regexp: "^#\s*(ssl_protocols|ssl_ciphers|ssl_prefer_server_ciphers)"
         backup: yes
-      ignore_errors: yes
       with_items:
         - /etc/nginx/conf.d/em7ngx_web_ui.conf
         - /etc/nginx/conf.d/em7ngx_em7proxy_web_ui.conf
         - /etc/nginx/conf.d/em7_sladmin.conf
         - /etc/nginx/conf.d/em7webconfig.conf
         - /etc/nginx/conf.d/em7ngx_model_mc_sp.conf
+      ignore_errors: yes
