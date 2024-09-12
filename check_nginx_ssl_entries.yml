@@ -1,11 +1,11 @@
 ---
-- name: Check for ssl_protocols, ssl_ciphers, ssl_prefer_server_ciphers entries in nginx config files
+- name: Print specific values from nginx config files
   hosts: all
   become: yes
   tasks:
-    - name: Check for ssl_protocols entry
-      command: grep -E '^ssl_protocols' "{{ item }}"
-      register: result_ssl_protocols
+    - name: Read the nginx config files
+      command: cat {{ item }}
+      register: nginx_config
       ignore_errors: yes
       with_items:
         - /etc/nginx/conf.d/em7ngx_web_ui.conf
@@ -14,42 +14,11 @@
         - /etc/nginx/conf.d/em7webconfig.conf
         - /etc/nginx/conf.d/em7ngx_model_mc_sp.conf
 
-    - name: Display ssl_protocols check results
+    - name: Extract and print ssl_protocols, ssl_ciphers, and ssl_prefer_server_ciphers
       debug:
-        msg: "File: {{ item.item }}, ssl_protocols line: {{ item.stdout }}"
-      with_items: "{{ result_ssl_protocols.results }}"
-      when: item.rc == 0
-
-    - name: Check for ssl_ciphers entry
-      command: grep -E '^ssl_ciphers' "{{ item }}"
-      register: result_ssl_ciphers
-      ignore_errors: yes
-      with_items:
-        - /etc/nginx/conf.d/em7ngx_web_ui.conf
-        - /etc/nginx/conf.d/em7ngx_em7proxy_web_ui.conf
-        - /etc/nginx/conf.d/em7_sladmin.conf
-        - /etc/nginx/conf.d/em7webconfig.conf
-        - /etc/nginx/conf.d/em7ngx_model_mc_sp.conf
-
-    - name: Display ssl_ciphers check results
-      debug:
-        msg: "File: {{ item.item }}, ssl_ciphers line: {{ item.stdout }}"
-      with_items: "{{ result_ssl_ciphers.results }}"
-      when: item.rc == 0
-
-    - name: Check for ssl_prefer_server_ciphers entry
-      command: grep -E '^ssl_prefer_server_ciphers' "{{ item }}"
-      register: result_ssl_prefer_server_ciphers
-      ignore_errors: yes
-      with_items:
-        - /etc/nginx/conf.d/em7ngx_web_ui.conf
-        - /etc/nginx/conf.d/em7ngx_em7proxy_web_ui.conf
-        - /etc/nginx/conf.d/em7_sladmin.conf
-        - /etc/nginx/conf.d/em7webconfig.conf
-        - /etc/nginx/conf.d/em7ngx_model_mc_sp.conf
-
-    - name: Display ssl_prefer_server_ciphers check results
-      debug:
-        msg: "File: {{ item.item }}, ssl_prefer_server_ciphers line: {{ item.stdout }}"
-      with_items: "{{ result_ssl_prefer_server_ciphers.results }}"
-      when: item.rc == 0
+        msg: |
+          File: {{ item.item }}
+          ssl_protocols: "{{ item.stdout | regex_search('ssl_protocols\s+(\S+)', '\\1') }}"
+          ssl_ciphers: "{{ item.stdout | regex_search('ssl_ciphers\s+(\S+)', '\\1') }}"
+          ssl_prefer_server_ciphers: "{{ item.stdout | regex_search('ssl_prefer_server_ciphers\s+(\S+)', '\\1') }}"
+      with_items: "{{ nginx_config.results }}"
