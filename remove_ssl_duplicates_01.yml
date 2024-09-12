@@ -1,6 +1,6 @@
 ---
 - name: Remove specific commented lines from nginx config files
-  hosts: hsbc2em7dc50
+  hosts: em7db,em7ap,em7dc,em7mc
   become: yes
   tasks:
     - name: Remove commented lines from nginx config files
@@ -9,6 +9,7 @@
         state: absent
         regexp: '^#\s*(ssl_protocols|ssl_ciphers|ssl_prefer_server_ciphers)'
         backrefs: yes
+        backup: yes
       with_items:
         - /etc/nginx/conf.d/em7ngx_web_ui.conf
         - /etc/nginx/conf.d/em7ngx_em7proxy_web_ui.conf
