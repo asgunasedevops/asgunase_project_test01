@@ -22,3 +22,6 @@
           ssl_ciphers: "{{ item.stdout | regex_search('ssl_ciphers\s+(\S+)', '\\1') }}"
           ssl_prefer_server_ciphers: "{{ item.stdout | regex_search('ssl_prefer_server_ciphers\s+(\S+)', '\\1') }}"
       with_items: "{{ nginx_config.results }}"
+
+      ansible all -m shell -a "grep -E '^(ssl_protocols|ssl_ciphers|ssl_prefer_server_ciphers)' /etc/nginx/conf.d/em7ngx_web_ui.conf /etc/nginx/conf.d/em7ngx_em7proxy_web_ui.conf /etc/nginx/conf.d/em7_sladmin.conf /etc/nginx/conf.d/em7webconfig.conf /etc/nginx/conf.d/em7ngx_model_mc_sp.conf || true" --become
+
