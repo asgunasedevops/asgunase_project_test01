@@ -1,0 +1,22 @@
+---
+- name: Backup exec_snippet.pyc and verify
+  hosts: all
+  become: yes
+  tasks:
+    - name: Get the current date
+      command: date +"%d%m%Y"
+      register: current_date
+
+    - name: Backup exec_snippet.pyc file
+      copy:
+        src: /opt/em7/lib/python3/sl_rba/exec_snippet.pyc
+        dest: "/opt/em7/lib/python3/sl_rba/exec_snippet.pyc_{{ current_date.stdout }}.backup"
+      notify: "Verify backup file"
+
+  handlers:
+    - name: Verify backup file
+      command: ls -l /opt/em7/lib/python3/sl_rba/
+      register: ls_output
+
+    - debug:
+        var: ls_output.stdout
