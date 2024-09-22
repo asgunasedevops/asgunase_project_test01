@@ -1,0 +1,23 @@
+---
+- name: Automate file movement and service restart
+  hosts: all
+  become: yes
+  tasks:
+    - name: Move original collect_avail.pyc to backup
+      command: mv /opt/em7/lib/python/sl_availability/collect_avail.pyc /opt/em7/lib/python/sl_availability/collect_avail.pyc.orig
+      args:
+        creates: /opt/em7/lib/python/sl_availability/collect_avail.pyc.orig
+
+    - name: Move new collect_avail.pyc from /tmp to the destination
+      command: mv /tmp/collect_avail.pyc /opt/em7/lib/python/sl_availability/
+
+    - name: Change ownership of the new collect_avail.pyc
+      file:
+        path: /opt/em7/lib/python/sl_availability/collect_avail.pyc
+        owner: root
+        group: s-em7-srv
+
+    - name: Restart the critical availability process
+      service:
+        name: em7_cavaild
+        state: restarted
