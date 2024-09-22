@@ -1,0 +1,20 @@
+---
+- name: Playbook to copy and set permissions on exec_snippet.pyc
+  hosts: all
+  become: yes
+  tasks:
+    - name: Copy exec_snippet.pyc to the target directory
+      copy:
+        src: /tmp/exec_snippet.pyc
+        dest: /opt/em7/lib/python3/sl_rba/exec_snippet.pyc
+        owner: root
+        group: root
+        mode: '0744'
+
+    - name: Verify file copy by listing the directory
+      command: ls -l /opt/em7/lib/python3/sl_rba/
+      register: result
+
+    - name: Display the result of the ls command
+      debug:
+        var: result.stdout
