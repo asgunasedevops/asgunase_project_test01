@@ -1,0 +1,22 @@
+---
+- name: Run Python script to update Nginx config and restart Nginx
+  hosts: em7db,em7ap
+  become: yes
+  tasks:
+    - name: Change to /tmp directory and run update_nginx_conf.py
+      command: python update_nginx_conf.py
+      args:
+        chdir: /tmp
+
+    - name: Restart Nginx service
+      service:
+        name: nginx
+        state: restarted
+
+    - name: Check the status of Nginx service
+      command: systemctl status nginx
+      register: nginx_status
+
+    - name: Print Nginx status
+      debug:
+        var: nginx_status.stdout_lines
