@@ -1,0 +1,13 @@
+---
+- name: Copy files from /opt/ansible/v444 to remote host /tmp
+  hosts: all
+  become: yes
+  tasks:
+    - name: Copy files from /opt/ansible/v444 to /tmp on remote host
+      copy:
+        src: /opt/ansible/v444/
+        dest: /tmp/
+        mode: '0644'
+        owner: root
+        group: root
+        remote_src: no
