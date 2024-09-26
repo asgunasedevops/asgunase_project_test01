@@ -1,0 +1,119 @@
+Sharma, Manish • pcli list-patches
+pcli stage <patch-file-id> -m <mid> -i
+pcli deply <patch-file-id> -m <mid>
+
+pcli stage 67126 -m 151 -i -r
+INSERT INTO siloupdate.preupgrade_schedule (patch_file_id) VALUES(293029);
+
+pcli refresh-appliances
+Mahesh Yadav 08-08-2024 11:43 • sudo /opt/em7/share/scripts/em7_postupdate.sh
+siloupdate-manager.service
+siloupdate-pkgserver.service
+sudo systemctl daemon-reload
+sudo crm configure property maintenance-mode=true
+systemctl status siloupdate-manager (in place of em7_patch_manager)
+sudo mv /tmp/.proc_mgr_pause /home/em7release/.proc_mgr_pause_old
+[em7release@sbsaem7dba02 conf.d]$ sudo pcli list-ineligible-appliances
+Mahesh Yadav 31-07-2024 11:39 • python ./test-license-expiry.pyc
+silo_mysql -e "UPDATE siloupdate.preupgrade_config SET enabled=1 WHERE type='lic_expiration'"
+crm node attribute thomrem7dba01 delete maintenance
+
+sudo systemctl list-units --type=service --state=running --all
+sudo systemctl start wazuh-agent
+sudo systemctl status wazuh-agent
+
+sudo cat  /proc/sys/net/ipv4/conf/default/rp_filter ; sudo cat /proc/sys/net/ipv4/conf/all/rp_filter
+
+
+sudo python /opt/sapphire/Build/SNOW_Deployment/DeploymentScript/tkt_snow_ticket_correlation_config.py /opt/sapphire/Build/SNOW_Deployment/DeploymentScript is4_TIAA "servicenow_account_tiaa" "tiaa"'_queue' /opt/sapphire/Build/Config/EventCategoryFilter.properties
+
+#############################
+Webaudit,
+Run below commands on EM7 Primary DB / AIO VM
+sudo cp /tmp/em7_webaudit_schema.sql /opt/sapphire/Build/DataBase_Scripts/ ; sudo silo_mysql < /opt/sapphire/Build/DataBase_Scripts/em7_webaudit_schema.sql
+ 
+sudo cp /tmp/em7_webaudit.py /opt/sapphire/scripts/ ; sudo chmod 755 /opt/sapphire/scripts/em7_webaudit.py ;
+sudo cp /tmp/logger /opt/sapphire/Build/DeploymentScript ; sudo chmod 644 /opt/sapphire/Build/DeploymentScript/logger ; 
+sudo cp /tmp/em7_webaudit_config.sh /opt/sapphire/Build/DeploymentScript ; sudo chmod 755 /opt/sapphire/Build/DeploymentScript/em7_webaudit_config.sh ;
+sudo /opt/sapphire/Build/DeploymentScript/em7_webaudit_config.sh /opt/sapphire
+
+Run below commands on EM7 Secondary DB VM, DR DB
+sudo cp /tmp/em7_webaudit.py /opt/sapphire/scripts ; sudo chmod 755 /opt/sapphire/scripts/em7_webaudit.py ;
+sudo cp /tmp/logger /opt/sapphire/Build/DeploymentScript ; sudo chmod 644 /opt/sapphire/Build/DeploymentScript/logger ;
+sudo mkdir -p /var/log/sapphire/em7 ; sudo cp /tmp/em7_webaudit_config.sh /opt/sapphire/Build/SecondaryDB_Scripts/ ; sudo chmod 755 /opt/sapphire/Build/SecondaryDB_Scripts/em7_webaudit_config.sh ; sudo /opt/sapphire/Build/SecondaryDB_Scripts/em7_webaudit_config.sh /opt/sapphire
+
+##############################
+8.2.1.1	Python 3 environment support in 12.1.1,
+sudo cp /tmp/exec_snippet.pyc /opt/em7/lib/python3/sl_rba/ ; sudo chown root:root /opt/em7/lib/python3/sl_rba/exec_snippet.pyc ;
+sudo chmod 744 /opt/em7/lib/python3/sl_rba/exec_snippet.pyc ; sudo ls -l /opt/em7/lib/python3/sl_rba/
+##############################
+8.2.1.4	Critical Ping alerting fix,
+sudo mv /opt/em7/lib/python/sl_availability/collect_avail.pyc /opt/em7/lib/python/sl_availability/collect_avail.pyc.orig ; sudo mv /tmp/collect_avail.pyc /opt/em7/lib/python/sl_availability ; sudo chown root:s-em7-srv /opt/em7/lib/python/sl_availability/collect_avail.pyc ; sudo systemctl restart em7_cavaild
+##############################
+8.2.3 CMCS Seed file generation,
+4.	Run below commands on EM7 Primary DB/AIO VM
+sudo cp /tmp/cmcs_seed_schema.sql /opt/sapphire/Build/DataBase_Scripts ; sudo silo_mysql</opt/sapphire/Build/DataBase_Scripts/cmcs_seed_schema.sql
+ 
+sudo cp /tmp/cmcs_seed_file_generator.py /opt/sapphire/cmcs-seed/config/ ; sudo cp /tmp/set_cmcs_cron.py /opt/sapphire/cmcs-seed/config/ ; sudo cp /tmp/cmcs-seed-cron.sh /opt/sapphire/cmcs-seed/config/ ; sudo cp /tmp/cmcs-seed-config.sh /opt/sapphire/cmcs-seed/config/ ; sudo chmod 755 /opt/sapphire/cmcs-seed/config/set_cmcs_cron.py ; sudo chmod 755 /opt/sapphire/cmcs-seed/config/cmcs_seed_file_generator.py ;sudo chmod 777 /opt/sapphire/cmcs-seed/config/cmcs-seed-cron.sh ; sudo chmod 777 /opt/sapphire/cmcs-seed/config/cmcs-seed-config.sh ; sudo cp /tmp/cmcs_expect_pass /opt/sapphire/Build/DeploymentScript ; sudo chmod 755 /opt/sapphire/Build/DeploymentScript/cmcs_expect_pass
+
+sudo /opt/sapphire/cmcs-seed/config/cmcs-seed-config.sh /opt/sapphire/config/ /opt/sapphire <<EM7_PRIMARY_DB_IP>>
+
+7.	Run below commands on EM7 Secondary/DR VM 
+
+sudo mkdir -p /opt/sapphire/cmcs-seed ; sudo mkdir -p /opt/sapphire/cmcs-seed/config ; sudo mkdir -p /opt/sapphire/cmcs-seed/files ; sudo chmod 0777 /opt/sapphire/cmcs-seed /opt/sapphire/cmcs-seed/files /opt/sapphire/cmcs-seed/config ; sudo cp /tmp/archive_cmcs_logs.sh /opt/sapphire/cmcs-seed/config/ ; sudo chmod 0777 /opt/sapphire/cmcs-seed/config/archive_cmcs_logs.sh ; sudo cp /tmp/archive_cmcs_seed_files_db.sh /opt/sapphire/cmcs-seed/files/ ; sudo chmod 0777 /opt/sapphire/cmcs-seed/files/archive_cmcs_seed_files_db.sh ; sudo cp /tmp/cmcs_seed_file_generator.py /opt/sapphire/cmcs-seed/config/ ; sudo cp /tmp/set_cmcs_cron.py /opt/sapphire/cmcs-seed/config/ ; sudo cp /tmp/cmcs-seed-cron.sh /opt/sapphire/cmcs-seed/config/ ; sudo cp /tmp/cmcs-seed-config.sh /opt/sapphire/cmcs-seed/config/ ; sudo chmod 755 /opt/sapphire/cmcs-seed/config/set_cmcs_cron.py ; sudo chmod 755 /opt/sapphire/cmcs-seed/config/cmcs_seed_file_generator.py ; sudo chmod 777 /opt/sapphire/cmcs-seed/config/cmcs-seed-cron.sh ; sudo chmod 777 /opt/sapphire/cmcs-seed/config/cmcs-seed-config.sh ; sudo cp /tmp/cmcs_expect_pass /opt/sapphire/Build/DeploymentScript/ ; sudo chmod 755 /opt/sapphire/Build/DeploymentScript/cmcs_expect_pass
+
+sudo /opt/sapphire/cmcs-seed/config/cmcs-seed-config.sh /opt/sapphire/config/ /opt/sapphire <<EM7_SECONDARY_DB_IP>>
+
+################################
+sudo cat /etc/siteconfig/firewalld-rich-rules.siteconfig
+sudo firewall-cmd --list-all --zone=drop | grep 7707
+
+sudo firewall-cmd --add-rich-rule='rule family="ipv4" source address="172.19.206.13" port port="7707" protocol="tcp" accept'
+sudo firewall-cmd --add-rich-rule='rule family="ipv4" source address="172.19.206.14" port port="7707" protocol="tcp" accept'
+sudo firewall-cmd --add-rich-rule='rule family="ipv4" source address="172.19.206.40" port port="7707" protocol="tcp" accept'
+
+sudo firewall-cmd --add-rich-rule='rule family="ipv4" source address="172.19.153.13" port port="7707" protocol="tcp" accept'
+
+rule family="ipv4" source address="172.19.206.13" port port="7707" protocol="tcp" accept
+rule family="ipv4" source address="172.19.206.14" port port="7707" protocol="tcp" accept
+rule family="ipv4" source address="172.19.206.40" port port="7707" protocol="tcp" accept
+
+rule family="ipv4" source address="172.19.153.13" port port="7707" protocol="tcp" accept
+
+###################################
+Rsyslog,
+So before restore, must take the backup of the newly upgraded files rsyslog.conf and cmsp_em7.conf files. 
+sudo mkdir /home/em7release/upgrade_backup/rsyslog_bkp/12.1.1 ; sudo cp /etc/rsyslog.conf /home/em7release/upgrade_backup/rsyslog_bkp/12.1.1 ; sudo cp /etc/rsyslog.d/cmsp_em7.conf /home/em7release/upgrade_backup/rsyslog_bkp/12.1.1
+
+Restore the OLD files from the /home/em7release/upgrade_backup/rsyslog_bkp/. To do that follow the below mentioned steps.
+sudo cp /home/em7release/upgrade_backup/rsyslog_bkp/rsyslog.conf /etc/rsyslog.conf ; sudo cp /home/em7release/upgrade_backup/rsyslog_bkp/cmsp_em7.conf /etc/rsyslog.d/cmsp_em7.conf ; sudo systemctl restart rsyslog
+
+sudo systemctl status rsyslog
+KU2:v5PV8L9!I(1&Gv
+
+
+DB01,
+#Corosync
+rule family="ipv4" source address="192.170.170.10" port port="5555-5556" protocol="udp" accept
+rule family="ipv4" source address="192.170.170.8/24" port port="5555-5556" protocol="udp" accept
+#DRBD
+rule port port="7788" protocol="tcp" accept
+#Post-Update Corosync Fix
+rule family="ipv4" source address="172.19.206.14" port port="5555-5556" protocol="udp" accept
+
+
+DB02,
+#Corosync
+rule family="ipv4" source address="192.170.170.9" port port="5555-5556" protocol="udp" accept
+rule family="ipv4" source address="192.170.170.8/24" port port="5555-5556" protocol="udp" accept
+#DRBD
+rule port port="7788" protocol="tcp" accept
+#Post-Update Corosync Fix
+rule family="ipv4" source address="172.19.206.13" port port="5555-5556" protocol="udp" accept
+
+
+#Corosync
+--zone=drop --permanent --add-rich-rule 'rule family="ipv4" source address="172.19.206.14" port protocol="udp" port="5555" accept'
+--zone=drop --permanent --add-rich-rule 'rule family="ipv4" source address="192.170.170.10" port protocol="udp" port="5556" accept'
+#DRBD
+--zone=drop --add-port=7788/tcp
