@@ -1,22 +1,31 @@
 ---
-- name: Restore rsyslog configuration and restart service
-  hosts: all
+- name: Backup and Restore rsyslog configurations
+  hosts: localhost
   become: yes
-
   tasks:
-    - name: Copy rsyslog.conf to /etc
+    - name: Ensure the rsyslog backup directory exists
+      file:
+        path: /home/em7release/upgrade_backup/rsyslog_bkp
+        state: directory
+        mode: '0755'
+
+    - name: Copy rsyslog.conf from backup to /etc
       copy:
         src: /home/em7release/upgrade_backup/rsyslog_bkp/rsyslog.conf
         dest: /etc/rsyslog.conf
-        backup: yes
-
-    - name: Copy cmsp_em7.conf to /etc/rsyslog.d
+        owner: root
+        group: root
+        mode: '0644'
+    
+    - name: Copy cmsp_em7.conf from backup to /etc/rsyslog.d
       copy:
         src: /home/em7release/upgrade_backup/rsyslog_bkp/cmsp_em7.conf
         dest: /etc/rsyslog.d/cmsp_em7.conf
-        backup: yes
+        owner: root
+        group: root
+        mode: '0644'
 
     - name: Restart rsyslog service
-      service:
+      systemd:
         name: rsyslog
         state: restarted
