@@ -1,0 +1,32 @@
+---
+- name: Update Nginx configuration and restart Nginx
+  hosts: all
+  become: yes
+  tasks:
+    - name: Set permissions to 775 on em7_cipher_update.sh
+      file:
+        path: /tmp/em7_cipher_update.sh
+        mode: '0775'
+
+    - name: Set executable permissions for user on em7_cipher_update.sh
+      file:
+        path: /tmp/em7_cipher_update.sh
+        mode: u+x
+
+    - name: Run the em7_cipher_update.sh script
+      command: ./em7_cipher_update.sh
+      args:
+        chdir: /tmp
+
+    - name: Restart Nginx service
+      service:
+        name: nginx
+        state: restarted
+
+    - name: Check the status of Nginx service (limit output to 6 lines)
+      command: systemctl status nginx
+      register: nginx_status
+
+    - name: Print limited Nginx status output (first 6 lines)
+      debug:
+        msg: "{{ nginx_status.stdout_lines[:6] }}"
