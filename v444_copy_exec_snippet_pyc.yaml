@@ -10,6 +10,7 @@
         owner: root
         group: root
         mode: '0744'
+        remote_src: yes
 
     - name: Verify file copy by listing the directory
       command: ls -l /opt/em7/lib/python3/sl_rba/
