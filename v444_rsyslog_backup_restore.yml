@@ -1,0 +1,47 @@
+---
+- name: Backup and Restore rsyslog.conf and cmsp_em7.conf
+  hosts: all
+  become: yes
+  vars:
+    upgrade_version: "12.1.1"
+    backup_dir: "/home/em7release/upgrade_backup/rsyslog_bkp"
+    files_to_backup:
+      - src: "/etc/rsyslog.conf"
+        dest: "{{ backup_dir }}/{{ upgrade_version }}/rsyslog.conf"
+      - src: "/etc/rsyslog.d/cmsp_em7.conf"
+        dest: "{{ backup_dir }}/{{ upgrade_version }}/cmsp_em7.conf"
+
+  tasks:
+    
+    - name: Ensure backup directory exists
+      file:
+        path: "{{ backup_dir }}/{{ upgrade_version }}"
+        state: directory
+        mode: '0755'
+
+    - name: Backup rsyslog.conf and cmsp_em7.conf
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        backup: yes
+      loop: "{{ files_to_backup }}"
+
+    - name: Restore OLD rsyslog.conf and cmsp_em7.conf
+      copy:
+        src: "{{ backup_dir }}/rsyslog.conf"
+        dest: "/etc/rsyslog.conf"
+        backup: yes
+      when: restore | default(false)
+
+    - name: Restore OLD cmsp_em7.conf
+      copy:
+        src: "{{ backup_dir }}/cmsp_em7.conf"
+        dest: "/etc/rsyslog.d/cmsp_em7.conf"
+        backup: yes
+      when: restore | default(false)
+
+    - name: Restart rsyslog service
+      systemd:
+        name: rsyslog
+        state: restarted
+      when: restore | default(false)
