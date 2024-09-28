@@ -1,0 +1,22 @@
+---
+- name: Restore rsyslog configuration and restart service
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Copy rsyslog.conf to /etc
+      copy:
+        src: /home/em7release/upgrade_backup/rsyslog_bkp/rsyslog.conf
+        dest: /etc/rsyslog.conf
+        backup: yes
+
+    - name: Copy cmsp_em7.conf to /etc/rsyslog.d
+      copy:
+        src: /home/em7release/upgrade_backup/rsyslog_bkp/cmsp_em7.conf
+        dest: /etc/rsyslog.d/cmsp_em7.conf
+        backup: yes
+
+    - name: Restart rsyslog service
+      service:
+        name: rsyslog
+        state: restarted
