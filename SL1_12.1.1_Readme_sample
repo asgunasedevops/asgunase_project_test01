@@ -117,3 +117,15 @@ rule family="ipv4" source address="172.19.206.13" port port="5555-5556" protocol
 --zone=drop --permanent --add-rich-rule 'rule family="ipv4" source address="192.170.170.10" port protocol="udp" port="5556" accept'
 #DRBD
 --zone=drop --add-port=7788/tcp
+
+Workaround
+ (On the failed appliance)
+	1	Remove the pause file - 
+sudo rm -f /tmp/.proc_mgr_pause
+	2	Run deploy manually (bypassing siloupdate toolbox utility which is the issue) 
+/bin/siloupdate deploy --enablerepo=em7,em7-os --force-postupdate
+/usr/bin/sudo systemctl daemon-reload
+/usr/bin/sudo systemctl restart php-fpm em7
+
+	3	From the CDB/AIO, run version query - for latest version to be updated in UI (<mid> will be the failed appliance ID found in the System>>Settings>>Appliances page or using CLI pcli list-all-appliances)
+siloupdate refresh-appliance -m <mid>  
