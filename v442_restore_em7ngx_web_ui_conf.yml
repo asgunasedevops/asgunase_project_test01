@@ -1,0 +1,26 @@
+---
+- name: restore nginx configuration file and restart nginx
+  hosts: all
+  become: yes
+  tasks:
+    - name: copy backup em7ngx_web_ui.conf to /etc/nginx/conf.d/
+      copy:
+        remote_src: yes
+        src: /home/em7release/upgrade_backup/{{ inventory_hostname }}/nginx/nginx/em7ngx_web_ui.conf
+        dest: /etc/nginx/conf.d/
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Restart Nginx service
+      service:
+        name: nginx
+        state: restarted
+
+    - name: Check Nginx service status
+      command: systemctl status nginx
+      register: nginx_status
+
+    - name: Print Nginx status
+      debug:
+        var: nginx_status.stdout_lines
