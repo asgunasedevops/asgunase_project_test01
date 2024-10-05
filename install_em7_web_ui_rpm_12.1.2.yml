@@ -1,0 +1,32 @@
+---
+- name: Install or upgrade em7-web-ui RPM
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Copy em7-web-ui RPM to /tmp
+      copy:
+        src: /opt/ansible/scripts/VulnerabilityFix_KB15465/em7-web-ui-12.1.2-484.el7.x86_64.rpm
+        dest: /tmp/em7-web-ui-12.1.2-484.el7.x86_64.rpm
+        mode: '0644'
+
+    - name: Check for existing em7-web-ui RPM
+      shell: rpm -qa | grep '^em7-web-ui'
+      register: installed_rpm
+      ignore_errors: yes
+
+    - name: Print currently installed em7-web-ui version (if any)
+      debug:
+        msg: "Currently installed version: {{ installed_rpm.stdout }}"
+      when: installed_rpm.stdout != ""
+
+    - name: Install or upgrade the em7-web-ui RPM
+      command: rpm -ivh --force --nodeps /tmp/em7-web-ui-12.1.2-484.el7.x86_64.rpm
+
+    - name: Verify the newly installed em7-web-ui RPM
+      shell: rpm -qa | grep '^em7-web-ui'
+      register: new_installed_rpm
+
+    - name: Print the newly installed em7-web-ui version
+      debug:
+        msg: "Newly installed version: {{ new_installed_rpm.stdout }}"
