@@ -1,0 +1,18 @@
+---
+- name: Backup original Python interface files
+  hosts: all
+  become: yes
+  tasks:
+    - name: Backup Python 2 interface file
+      copy:
+        src: /opt/em7/lib/python/sl_interface/interface.pyc
+        dest: /opt/em7/lib/python/sl_interface/interface.pyc-original
+        remote_src: yes
+      when: ansible_facts['os_family'] is not none
+
+    - name: Backup Python 3 interface file
+      copy:
+        src: /opt/em7/lib/python3/sl_interface/interface.pyc
+        dest: /opt/em7/lib/python3/sl_interface/interface.pyc-original
+        remote_src: yes
+      when: ansible_facts['os_family'] is not none
