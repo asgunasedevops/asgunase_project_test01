@@ -1,0 +1,16 @@
+---
+- name: Copy and unzip Interface-DropFile-EM-38573.zip
+  hosts: all
+  become: yes
+  tasks:
+    - name: Copy the ZIP file to /tmp
+      copy:
+        src: /path/to/Interface-DropFile-EM-38573.zip
+        dest: /tmp/Interface-DropFile-EM-38573.zip
+        remote_src: no 
+
+    - name: Unzip the file in /tmp
+      unarchive:
+        src: /tmp/Interface-DropFile-EM-38573.zip
+        dest: /tmp
+        remote_src: yes
