@@ -1,0 +1,53 @@
+---
+- name: Apply new drop files, restart services, and check status
+  hosts: all
+  become: yes
+  tasks:
+    - name: Copy interface-py2.pyc to /opt/em7/lib/python/sl_interface
+      copy:
+        src: /tmp/interface-py2.pyc
+        dest: /opt/em7/lib/python/sl_interface/interface-py2.pyc
+        remote_src: yes
+
+    - name: Copy interface-py3.pyc to /opt/em7/lib/python3/sl_interface
+      copy:
+        src: /tmp/interface-py3.pyc
+        dest: /opt/em7/lib/python3/sl_interface/interface-py3.pyc
+        remote_src: yes
+
+    - name: Rename interface-py2.pyc to interface.pyc
+      command: mv /opt/em7/lib/python/sl_interface/interface-py2.pyc /opt/em7/lib/python/sl_interface/interface.pyc
+
+    - name: Set permissions and ownership for Python 2 interface.pyc
+      file:
+        path: /opt/em7/lib/python/sl_interface/interface.pyc
+        owner: root
+        group: s-em7-srv
+        mode: '0640'
+
+    - name: Rename interface-py3.pyc to interface.pyc
+      command: mv /opt/em7/lib/python3/sl_interface/interface-py3.pyc /opt/em7/lib/python3/sl_interface/interface.pyc
+
+    - name: Set permissions and ownership for Python 3 interface.pyc
+      file:
+        path: /opt/em7/lib/python3/sl_interface/interface.pyc
+        owner: root
+        group: root
+        mode: '0744'
+
+    - name: Restart EM7 data pull services
+      systemd:
+        name: "{{ item }}"
+        state: restarted
+      loop:
+        - em7_hfpulld
+        - em7_mfpulld
+        - em7_lfpulld
+
+    - name: Check status of EM7 data pull services
+      command: systemctl status em7_hfpulld em7_mfpulld em7_lfpulld
+      register: service_status
+
+    - name: Display service statuses
+      debug:
+        msg: "{{ service_status.stdout }}"
